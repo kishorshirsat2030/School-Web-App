@@ -101,7 +101,7 @@ st.write("विद्यार्थ्याची माहिती भर�
 
 if not WORKBOOK_PATH.is_file():
     st.error(f"गुणपत्रिका सापडली नाही: {WORKBOOK_PATH}")
-    st.info("ZPPS Malegaon updated.xlsx ही फाइल Documents\\PAPA फोल्डरमध्ये ठेवा.")
+    st.info("ZPPS Malegaon.xlsx ही फाइल Documents\\PAPA फोल्डरमध्ये ठेवा.")
     st.stop()
 
 try:
@@ -177,6 +177,7 @@ with st.form("student_details"):
         type="primary",
     )
 
+
 if submitted:
     if not student_name.strip():
         st.error("कृपया विद्यार्थ्याचे नाव भरा.")
@@ -191,14 +192,27 @@ if submitted:
                 formative_marks,
                 summative_marks,
             )
+
+            st.success(
+                f"हजेरी क्रमांक {int(attendance_number)} — "
+                f"{student_name.strip()} यांची माहिती "
+                f"ओळ {saved_row} मध्ये Excel फाइलमध्ये जतन केली."
+            )
+
+            excel_data = WORKBOOK_PATH.read_bytes()
+
+            st.download_button(
+                label="Updated Excel डाउनलोड करा",
+                data=excel_data,
+                file_name=WORKBOOK_PATH.name,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="download_updated_excel",
+            )
+
         except PermissionError:
             st.error(
-                "Excel फाइल जतन करता आली नाही. कृपया गुणपत्रिका Excel मध्ये उघडी असल्यास बंद करा आणि पुन्हा सबमिट करा."
-            ) 
-        except (BadZipFile, InvalidFileException, OSError, ValueError) as error:
-            st.error(f"Excel गुणपत्रिका जतन करता आली नाही: {error}")
-        else:
-            st.success(
-                f"हजेरी क्रमांक {int(attendance_number)} — {student_name.strip()} "
-                f"यांची माहिती ओळ {saved_row} मध्ये Excel फाइलमध्ये जतन केली."
+                "Excel फाइल जतन करता आली नाही. "
+                "Excel मध्ये फाइल उघडी असल्यास बंद करा आणि पुन्हा प्रयत्न करा."
             )
+        except (BadZipFile, InvalidFileException, OSError, ValueError) as error:
+            st.error(f"Excel फाइल जतन किंवा डाउनलोड करता आली नाही: {error}")
